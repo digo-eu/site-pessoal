@@ -1,0 +1,82 @@
+{{ block "index" . }}
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+
+		<title></title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		<script src="https://unpkg.com/htmx.org/dist/htmx.min.js"></script>
+
+	</head>
+	<body>
+
+		<h1>Título</h1>
+
+		{{ template "create-reason" .Form }}
+
+		<script>
+			document.addEventListener("DOMContentLoaded", (event) => {
+				document.body.addEventListener('htmx:beforeSwap', function(evt) {
+					if (evt.detail.xhr.status === 422) {
+						// set isError to false to avoid error logging in console
+						evt.detail.shouldSwap = true;
+						evt.detail.isError = false;
+					}
+				});
+			})
+		</script>
+
+		{{ template "list" .Data }}
+
+	</body>
+</html>
+{{ end }}
+
+{{ block "create-reason" . }}
+<form hx-swap="outerHTML"  hx-post="/reasons">
+	<label for="title">Título</label>
+	<input 
+	{{ if .Values.title }} value="{{ .Values.title }}" {{ end }}
+	type="text" name="title" placeholder="Título do motivo">
+
+	<label for="explanation">Explicação</label>
+	<input
+	{{ if .Values.explanation }} value="{{ .Values.explanation }}" {{ end }}
+	type="text" name="explanation" placeholder="Explicação para o motivo">
+	<br><br>
+	{{ if .Errors.title }}
+	<div style="color: red">{{ .Errors.title }}</div>
+	{{ end }}
+
+	<button type="submit">Criar razão</button>
+</form>
+{{ end }}
+
+{{ block "list" . }}
+<div id="reasons" style="display: flex; flex-direction: column">
+	{{ range .Reasons }}
+	{{ template "reason" . }}
+	{{ end }}
+</div>
+{{ end }}
+
+{{ block "reason" . }}
+<div>
+	<h3> Motivo: <span>{{ .Title }}</span> </h3>
+	<span>{{ .Explanation }}</span>
+</div>
+{{ end }}
+
+{{ block "oob-contact" . }}
+<div id="reasons" hx-swap-oob="afterbegin">
+	{{ template "reason" . }}
+</div>
+{{ end }}
+
+{{ block "test" . }}
+<div>
+__TESTING__
+</div>
+{{ end }}
