@@ -1,9 +1,3 @@
-version: '3.8'
-
-volumes:
-  geoserver_data:
-    name: geoserver_data
-
 services:
 
   nginx:
