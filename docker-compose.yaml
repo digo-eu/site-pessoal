@@ -13,7 +13,11 @@ services:
       - 443:443
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./certs/:/etc/ssl/
+    secrets:
+      - source: nginx_cert
+        target: /etc/ssl/cert.pem
+      - source: nginx_key
+        target: /etc/ssl/key.pem
     restart: unless-stopped
 
   air:
@@ -32,3 +36,9 @@ services:
     image: fabricioveronez/web-color:blue
   webcolorgreen:
     image: fabricioveronez/web-color:green
+
+secrets:
+  nginx_cert:
+    file: ./certs/cert.pem
+  nginx_key:
+    file: ./certs/key.pem
