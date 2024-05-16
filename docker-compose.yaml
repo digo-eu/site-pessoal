@@ -1,6 +1,8 @@
-services:
+name: site-pessoal
 
+services:
   nginx:
+    container_name: nginx
     image: nginx
     ports: 
       - 80:80
@@ -12,15 +14,47 @@ services:
         target: /etc/ssl/cert.pem
       - source: nginx_key
         target: /etc/ssl/cert.key
+    networks:
+      - sitewide
+      - db-access
     restart: unless-stopped
 
+  db:
+    container_name: db
+    image: postgis/postgis
+    environment:
+      POSTGRES_PASSWORD: ${DEFAULT_PASSWORD}
+    volumes:
+      - type: bind
+        source: ./db_data/
+        target: /var/lib/postgresql/data/
+    shm_size: 2gb
+    networks:
+      - db-access
+    restart: always
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${DEFAULT_PASSWORD}
+    ports:
+      - 81:80
+    networks:
+      - db-access
+
   air:
+    container_name: air
     image: cosmtrek/air
     working_dir: /air-server/
     volumes:
       - ./air-server/:/air-server/
+    networks:
+      - sitewide
 
   geoserver:
+    container_name: geoserver
     image: docker.osgeo.org/geoserver:2.25.x
     environment:
       - CORS_ENABLED=true
@@ -33,12 +67,25 @@ services:
       - type: bind
         source: ./tomcat_config.xml 
         target: /opt/config_overrides/web.xml
+    networks:
+      - sitewide
+      - db-access
     restart: unless-stopped
         
   webcolorblue:
     image: fabricioveronez/web-color:blue
+    networks:
+      - sitewide
   webcolorgreen:
     image: fabricioveronez/web-color:green
+    networks:
+      - sitewide
+
+networks:
+  sitewide:
+    driver: bridge
+  db-access:
+    driver: bridge
 
 secrets:
   nginx_cert:
