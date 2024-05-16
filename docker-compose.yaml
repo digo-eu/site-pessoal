@@ -11,7 +11,7 @@ services:
       - source: nginx_cert
         target: /etc/ssl/cert.pem
       - source: nginx_key
-        target: /etc/ssl/key.pem
+        target: /etc/ssl/cert.key
     restart: unless-stopped
 
   air:
@@ -22,8 +22,17 @@ services:
 
   geoserver:
     image: docker.osgeo.org/geoserver:2.25.x
+    environment:
+      - CORS_ENABLED=true
+      - CORS_ALLOWED_METHODS=GET,POST,PUT,HEAD,OPTIONS
+      - SKIP_DEMO_DATA=true
     volumes:
-      - ./geoserver_data/:/geoserver_data/
+      - type: bind
+        source: ./geoserver_data/ 
+        target: /opt/geoserver_data/
+      - type: bind
+        source: ./tomcat_config.xml 
+        target: /opt/config_overrides/web.xml
     restart: unless-stopped
         
   webcolorblue:
@@ -35,4 +44,4 @@ secrets:
   nginx_cert:
     file: ./certs/cert.pem
   nginx_key:
-    file: ./certs/key.pem
+    file: ./certs/cert.key
