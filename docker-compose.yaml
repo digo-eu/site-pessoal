@@ -1,6 +1,7 @@
 name: site-pessoal
 
 services:
+# NGINX proxy and load balancer to manage the internal network
   nginx:
     container_name: nginx
     image: nginx
@@ -19,6 +20,7 @@ services:
       - db-access
     restart: unless-stopped
 
+# PostGIS enabled PostgreSQL implementation
   db:
     container_name: db
     image: postgis/postgis
@@ -33,6 +35,7 @@ services:
       - db-access
     restart: always
 
+# Admin interface for PostgreSQL
   pgadmin:
     container_name: pgadmin
     image: dpage/pgadmin4
@@ -43,7 +46,26 @@ services:
       - 81:80
     networks:
       - db-access
+#   The following is needed to access a dump file for restoration from the pgadmin client
+#   Substitute <EMAIL> with the PGADMIN_DEFAULT_EMAIL value but with "_" instead of "@"
+#   volumes:
+#     - ./db.sql:/var/lib/pgadmin/storage/<EMAIL>/db.sql
 
+# Template for including a frontend based on the t3 stack
+# homepage:
+#   container_name: homepage
+#   build:
+#     context: https://github.com/digo-eu/homepage.git
+#     args:
+#       NEXT_PUBLIC_CLIENTVAR: "clientvar"
+#   working_dir: /app
+#   image: t3-app
+#   environment:
+#     - DATABASE_URL=db
+#   networks:
+#     - db-access
+      
+# Air server for a Go app
   air:
     container_name: air
     image: cosmtrek/air
@@ -53,6 +75,7 @@ services:
     networks:
       - sitewide
 
+# Geoserver implementation for serving maps online
   geoserver:
     container_name: geoserver
     image: docker.osgeo.org/geoserver:2.25.x
