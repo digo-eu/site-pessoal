@@ -95,15 +95,6 @@ services:
       - db-access
     restart: unless-stopped
         
-  webcolorblue:
-    image: fabricioveronez/web-color:blue
-    networks:
-      - sitewide
-  webcolorgreen:
-    image: fabricioveronez/web-color:green
-    networks:
-      - sitewide
-
 networks:
   sitewide:
     driver: bridge
