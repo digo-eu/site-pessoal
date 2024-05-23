@@ -23,7 +23,12 @@ services:
 # PostGIS enabled PostgreSQL implementation
   db:
     container_name: db
-    image: postgis/postgis
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM postgis/postgis
+        RUN localedef -i pt_BR -c -f utf8 -A /usr/share/locale/locale.alias pt_BR.utf8
+        ENV LANG pt_BR.utf8
     environment:
       POSTGRES_PASSWORD: ${DEFAULT_PASSWORD}
     volumes:
@@ -80,8 +85,6 @@ services:
     container_name: geoserver
     image: docker.osgeo.org/geoserver:2.25.x
     environment:
-      - CORS_ENABLED=true
-      - CORS_ALLOWED_METHODS=GET,POST,PUT,HEAD,OPTIONS
       - SKIP_DEMO_DATA=true
     volumes:
       - type: bind
