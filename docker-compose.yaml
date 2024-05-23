@@ -56,19 +56,19 @@ services:
 #   volumes:
 #     - ./db.sql:/var/lib/pgadmin/storage/<EMAIL>/db.sql
 
-# Template for including a frontend based on the t3 stack
-# homepage:
-#   container_name: homepage
-#   build:
-#     context: https://github.com/digo-eu/homepage.git
-#     args:
-#       NEXT_PUBLIC_CLIENTVAR: "clientvar"
-#   working_dir: /app
-#   image: t3-app
-#   environment:
-#     - DATABASE_URL=db
-#   networks:
-#     - db-access
+# Homepage based on the t3 stack
+  homepage:
+    container_name: homepage
+    build:
+      context: https://github.com/digo-eu/homepage.git
+      args:
+        NEXT_PUBLIC_CLIENTVAR: "clientvar"
+    working_dir: /app
+    environment:
+      - DATABASE_URL=db
+    networks:
+      - sitewide
+      - db-access
       
 # Air server for a Go app
   air:
