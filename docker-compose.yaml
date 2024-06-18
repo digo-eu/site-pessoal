@@ -1,7 +1,7 @@
 name: site-pessoal
 
 services:
-# NGINX proxy and load balancer to manage the internal network
+# NGINX proxy, server and load balancer to manage the internal network
   nginx:
     container_name: nginx
     image: nginx
@@ -10,6 +10,7 @@ services:
       - 443:443
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./hosted_webapps/:/usr/share/nginx/html/
     secrets:
       - source: nginx_cert
         target: /etc/ssl/cert.pem
@@ -36,6 +37,8 @@ services:
         source: ./db_data/
         target: /var/lib/postgresql/data/
     shm_size: 2gb
+    ports:
+      - 82:5432
     networks:
       - db-access
     restart: always
