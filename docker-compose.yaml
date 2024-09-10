@@ -66,9 +66,10 @@ services:
       context: https://github.com/digo-eu/homepage.git
       args:
         NEXT_PUBLIC_CLIENTVAR: "clientvar"
+        NEXT_PUBLIC_POSTHOG_KEY: ${NEXT_PUBLIC_POSTHOG_KEY}
+        NEXT_PUBLIC_POSTHOG_HOST: ${NEXT_PUBLIC_POSTHOG_HOST}
+        DATABASE_URL: db
     working_dir: /app
-    environment:
-      - DATABASE_URL=db
     networks:
       - sitewide
       - db-access
