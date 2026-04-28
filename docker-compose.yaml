@@ -18,73 +18,16 @@ services:
         target: /etc/ssl/cert.key
     networks:
       - sitewide
-      - db-access
     restart: unless-stopped
 
-# PostGIS enabled PostgreSQL implementation
-  db:
-    container_name: db
-    build:
-      context: .
-      dockerfile_inline: |
-        FROM postgis/postgis
-        RUN localedef -i pt_BR -c -f utf8 -A /usr/share/locale/locale.alias pt_BR.utf8
-        ENV LANG pt_BR.utf8
-    environment:
-      POSTGRES_PASSWORD: ${DEFAULT_PASSWORD}
-    volumes:
-      - type: bind
-        source: ./db_data/
-        target: /var/lib/postgresql/data/
-    shm_size: 2gb
-    ports:
-      - 82:5432
-    networks:
-      - db-access
-    restart: always
-
-# Admin interface for PostgreSQL
-  pgadmin:
-    container_name: pgadmin
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${DEFAULT_PASSWORD}
-    ports:
-      - 81:80
-    networks:
-      - db-access
-#   The following is needed to access a dump file for restoration from the pgadmin client
-#   Substitute <EMAIL> with the PGADMIN_DEFAULT_EMAIL value but with "_" instead of "@"
-#   volumes:
-#     - ./db.sql:/var/lib/pgadmin/storage/<EMAIL>/db.sql
-
-# Homepage based on the t3 stack
+# Homepage with Next.js
   homepage:
     container_name: homepage
-    build:
-      context: https://github.com/digo-eu/homepage.git
-      args:
-        NEXT_PUBLIC_CLIENTVAR: "clientvar"
-        NEXT_PUBLIC_POSTHOG_KEY: ${NEXT_PUBLIC_POSTHOG_KEY}
-        NEXT_PUBLIC_POSTHOG_HOST: ${NEXT_PUBLIC_POSTHOG_HOST}
-        DATABASE_URL: db
+    image: digoeu/homepage
     working_dir: /app
     networks:
       - sitewide
-      - db-access
-      
-# Air server for a Go app
-  air:
-    container_name: air
-    image: cosmtrek/air
-    working_dir: /air-server/
-    volumes:
-      - ./air-server/:/air-server/
-    networks:
-      - sitewide
 
-# Geoserver implementation for serving maps online
   geoserver:
     container_name: geoserver
     image: docker.osgeo.org/geoserver:2.25.x
@@ -99,13 +42,10 @@ services:
         target: /opt/config_overrides/web.xml
     networks:
       - sitewide
-      - db-access
     restart: unless-stopped
         
 networks:
   sitewide:
-    driver: bridge
-  db-access:
     driver: bridge
 
 secrets:
