@@ -24,6 +24,8 @@ services:
   homepage:
     container_name: homepage
     image: digoeu/homepage
+    env_file:
+      - .env
     working_dir: /app
     networks:
       - sitewide
