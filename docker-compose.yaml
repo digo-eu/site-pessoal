@@ -46,6 +46,24 @@ services:
       - sitewide
     restart: unless-stopped
 
+  spacetimedb-publish:
+    container_name: spacetimedb-publish
+    image: clockworklabs/spacetime
+    command: >
+      sh -c "
+        echo 'Waiting for SpacetimeDB...' &&
+        until curl -sf http://spacetimedb:3000/v1/identity > /dev/null 2>&1; do sleep 1; done &&
+        echo 'Ready. Publishing...' &&
+        git clone git@github.com:digo-eu/grade-db.git /tmp/module &&
+        spacetime publish --server http://spacetimedb:3000 --project-path /tmp/module your-module-name &&
+        echo 'Done.'
+      "
+    networks:
+      - sitewide
+    depends_on:
+      - spacetimedb
+    restart: no               # exits cleanly after publishing, never restarts
+
   geoserver:
     container_name: geoserver
     image: docker.osgeo.org/geoserver:2.25.x
