@@ -35,6 +35,7 @@ services:
   spacetimedb:
     container_name: spacetimedb
     image: clockworklabs/spacetime
+    command: start
     ports:
       - "127.0.0.1:3000:3000"   # loopback only — invisible to the outside world
     volumes:
