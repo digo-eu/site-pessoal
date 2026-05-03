@@ -47,15 +47,19 @@ services:
   spacetimedb-publish:
     container_name: spacetimedb-publish
     image: clockworklabs/spacetime
-    command: >
-      sh -c "
-        echo 'Waiting for SpacetimeDB...' &&
-        until curl -sf http://spacetimedb:3000/v1/identity > /dev/null 2>&1; do sleep 1; done &&
-        echo 'Ready. Publishing...' &&
-        git clone git@github.com:digo-eu/grade-db.git /tmp/module &&
-        spacetime publish --server http://spacetimedb:3000 --project-path /tmp/module your-module-name &&
+    entrypoint: /bin/sh            # override the spacetime entrypoint
+    command:
+      - -c
+      - |
+        echo 'Waiting for SpacetimeDB...'
+        until spacetime server ping http://spacetimedb:3000 > /dev/null 2>&1; do sleep 1; done
+        echo 'Ready. Publishing...'
+        cd /module && spacetime publish --server http://spacetimedb:3000 grade-db
         echo 'Done.'
-      "
+    volumes:
+      - type: bind
+        source: /home/digo-eu/grade-db
+        target: /module
     networks:
       - sitewide
     depends_on:
