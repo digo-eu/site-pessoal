@@ -35,54 +35,20 @@ services:
   spacetimedb:
     container_name: spacetimedb
     image: clockworklabs/spacetime
+    ports:
+      - 3000:3000
     command: start
     volumes:
       - type: bind
         source: ./spacetimedb_data/
         target: /stdb
-    networks:
-      - sitewide
-    restart: unless-stopped
-
-  spacetimedb-publish:
-    container_name: spacetimedb-publish
-    image: clockworklabs/spacetime
-    entrypoint: /bin/sh            # override the spacetime entrypoint
-    command:
-      - -c
-      - |
-        echo 'Waiting for SpacetimeDB...'
-        until spacetime server ping http://spacetimedb:3000 > /dev/null 2>&1; do sleep 1; done
-        echo 'Ready. Publishing...'
-        cd /module
-        printf 'N\ny\n' | spacetime publish --server http://spacetimedb:3000 grade-db
-        echo 'Done.'
-    volumes:
       - type: bind
-        source: /home/digo-eu/grade-db
+        source: /home/digo-eu/projeto-fibula/fibula-server/
         target: /module
     networks:
       - sitewide
-    depends_on:
-      - spacetimedb
-    restart: no               # exits cleanly after publishing, never restarts
-
-  geoserver:
-    container_name: geoserver
-    image: docker.osgeo.org/geoserver:2.25.x
-    environment:
-      - SKIP_DEMO_DATA=true
-    volumes:
-      - type: bind
-        source: ./geoserver_data/ 
-        target: /opt/geoserver_data/
-      - type: bind
-        source: ./tomcat_config.xml 
-        target: /opt/config_overrides/web.xml
-    networks:
-      - sitewide
     restart: unless-stopped
-        
+
 networks:
   sitewide:
     driver: bridge
